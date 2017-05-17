@@ -19,7 +19,7 @@ public class MicrophoneManager : MonoBehaviour
 	private DictationRecognizer dictationRecognizer;
 
 	// Use this string to cache the text currently displayed in the text box.
-	private string englishS = "English: ";
+	private string englishS = "English: Waiting for speech";
 	private string target_langS = "French: ";
 
 	void WriteOut(string hypothesis = "")
@@ -37,8 +37,8 @@ public class MicrophoneManager : MonoBehaviour
 	{
 		Debug.Log("start");
 		LoadSupportedLanguages();
-		//SetTargetLang("german");
-		StartCoroutine(TranslateText("Waiting for speech"));
+		//SetTargetLang("chinese simplified");
+		//StartCoroutine(TranslateText("Waiting for speech"));
 		dictationRecognizer = new DictationRecognizer();
 
 		dictationRecognizer.DictationHypothesis += (text) =>
@@ -52,17 +52,22 @@ public class MicrophoneManager : MonoBehaviour
 			{
 				Debug.LogFormat("Dictation result: {0}", text);
 				var bits = text.Split(' ');
-				if (bits.Length == 3 && bits[0] == "translate")
+				if (bits[0] == "translate" && (bits.Length == 3 || bits.Length == 4))
 				{
+
 					string name = bits[2];
+					if (text.EndsWith("simplified chinese") || text.EndsWith("chinese simplified"))
+					{
+						name = "chinese simplified";
+					} else if (text.EndsWith("traditional chinese") || text.EndsWith("chinese traditional"))
+					{
+						name = "chinese traditional";
+					}
 					SetTargetLang(name);
 				}
-				else
-				{
-					englishS = "english: " + text + ". ";
-					WriteOut();
-					StartCoroutine(TranslateText(text));
-				}
+				englishS = "english: " + text + ". ";
+				WriteOut();
+				StartCoroutine(TranslateText(text));
 			};
 
 		dictationRecognizer.DictationComplete += (completionCause) =>
@@ -95,6 +100,7 @@ public class MicrophoneManager : MonoBehaviour
 
 	void SetTargetLang(string name)
 	{
+		name = name.ToLower();
 		if (supportedTranslationLanguages.ContainsKey(name))
 		{
 			target_langName = name;
