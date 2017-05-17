@@ -64,6 +64,7 @@ public class MicrophoneManager : MonoBehaviour
 						name = "chinese traditional";
 					}
 					SetTargetLang(name);
+					return;
 				}
 				englishS = "english: " + text + ". ";
 				WriteOut();
