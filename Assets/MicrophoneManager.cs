@@ -62,7 +62,11 @@ public class MicrophoneManager : MonoBehaviour
 					} else if (text.EndsWith("traditional chinese") || text.EndsWith("chinese traditional"))
 					{
 						name = "chinese traditional";
+					} else if (text.EndsWith("marry"))
+					{
+						name = "maori";
 					}
+
 					SetTargetLang(name);
 					return;
 				}
