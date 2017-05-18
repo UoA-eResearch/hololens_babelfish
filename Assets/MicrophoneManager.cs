@@ -141,8 +141,11 @@ public class MicrophoneManager : MonoBehaviour
 		headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36");
 		www = new WWW(url);
 		yield return www;
-		var audioClip = DecodeMP3.GetAudioClipFromMP3ByteArray(www.bytes);
-		audioSource.PlayOneShot(audioClip);
+		if (www.size > 0)
+		{
+			var audioClip = DecodeMP3.GetAudioClipFromMP3ByteArray(www.bytes);
+			audioSource.PlayOneShot(audioClip);
+		}
 	}
 
 	void OnApplicationQuit()
