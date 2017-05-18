@@ -253,7 +253,7 @@ namespace MP3Sharp
         ///     Closes the source stream and releases any associated resources.
         ///     If you don't call this, you may be leaking file descriptors.
         /// </summary>
-        public override void Close()
+        public void Close()
         {
             m_BitStream.close(); // This should close SourceStream as well.
         }

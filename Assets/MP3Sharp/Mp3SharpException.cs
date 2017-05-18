@@ -42,15 +42,6 @@ namespace MP3Sharp
         {
         }
 
-        protected MP3SharpException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        public void PrintStackTrace()
-        {
-            SupportClass.WriteStackTrace(this, Console.Error);
-        }
-
         public void PrintStackTrace(StreamWriter ps)
         {
             if (InnerException == null)
@@ -59,7 +50,7 @@ namespace MP3Sharp
             }
             else
             {
-                SupportClass.WriteStackTrace(InnerException, Console.Error);
+                SupportClass.WriteStackTrace(InnerException, ps);
             }
         }
     }

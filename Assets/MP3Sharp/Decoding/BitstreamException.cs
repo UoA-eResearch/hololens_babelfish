@@ -53,25 +53,9 @@ namespace MP3Sharp.Decoding
             m_Errorcode = errorcode;
         }
 
-        protected BitstreamException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            m_Errorcode = info.GetInt32("ErrorCode");
-        }
-
         public virtual int ErrorCode
         {
             get { return m_Errorcode; }
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("ErrorCode", m_Errorcode);
-            base.GetObjectData(info, context);
         }
 
         private void InitBlock()

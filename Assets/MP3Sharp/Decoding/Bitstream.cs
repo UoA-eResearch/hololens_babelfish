@@ -214,7 +214,7 @@ namespace MP3Sharp.Decoding
             switch (read)
             {
                 case 0:
-                    Trace.WriteLine("0 bytes read == sync?", "Bitstream");
+                    //Trace.WriteLine("0 bytes read == sync?", "Bitstream");
                     sync = true;
                     break;
 
@@ -312,19 +312,19 @@ namespace MP3Sharp.Decoding
             if (sync)
             {
                 sync = (((SupportClass.URShift(headerstring, 10)) & 3) != 3);
-                if (!sync) Trace.WriteLine("INVALID SAMPLE RATE DETECTED", "Bitstream");
+                //if (!sync) Trace.WriteLine("INVALID SAMPLE RATE DETECTED", "Bitstream");
             }
             // filter out invalid layer
             if (sync)
             {
                 sync = (((SupportClass.URShift(headerstring, 17)) & 3) != 0);
-                if (!sync) Trace.WriteLine("INVALID LAYER DETECTED", "Bitstream");
+                //if (!sync) Trace.WriteLine("INVALID LAYER DETECTED", "Bitstream");
             }
             // filter out invalid version
             if (sync)
             {
                 sync = (((SupportClass.URShift(headerstring, 19)) & 3) != 1);
-                if (!sync) Console.WriteLine("INVALID VERSION DETECTED");
+                //if (!sync) Console.WriteLine("INVALID VERSION DETECTED");
             }
 
             return sync;
@@ -459,8 +459,7 @@ namespace MP3Sharp.Decoding
                     if (bytesread == -1 || bytesread == 0) // t/DD -- .NET returns 0 at end-of-stream!
                     {
                         // t/DD: this really SHOULD throw an exception here...
-                        Trace.WriteLine("readFully -- returning success at EOF? (" + bytesread + ")",
-                            "Bitstream");
+                        //Trace.WriteLine("readFully -- returning success at EOF? (" + bytesread + ")", "Bitstream");
                         while (len-- > 0)
                         {
                             b[offs++] = 0;

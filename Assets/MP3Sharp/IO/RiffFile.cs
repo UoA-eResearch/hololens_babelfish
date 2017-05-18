@@ -105,7 +105,7 @@ namespace MP3Sharp.IO
                             }
                             catch
                             {
-                                m_File.Close();
+                                m_File.Dispose();
                                 Fmode = RFM_UNKNOWN;
                             }
                         }
@@ -135,7 +135,7 @@ namespace MP3Sharp.IO
                             }
                             catch
                             {
-                                m_File.Close();
+                                m_File.Dispose();
                                 Fmode = RFM_UNKNOWN;
                             }
                         }
@@ -201,7 +201,7 @@ namespace MP3Sharp.IO
                             }
                             catch
                             {
-                                m_File.Close();
+                                m_File.Dispose();
                                 Fmode = RFM_UNKNOWN;
                             }
                         }
@@ -232,7 +232,7 @@ namespace MP3Sharp.IO
                             }
                             catch
                             {
-                                m_File.Close();
+                                m_File.Dispose();
                                 Fmode = RFM_UNKNOWN;
                             }
                         }
@@ -454,7 +454,7 @@ namespace MP3Sharp.IO
                             br[5] = (sbyte) ((SupportClass.URShift(m_RiffHeader.CkSize, 8)) & 0x000000FF);
                             br[4] = (sbyte) (m_RiffHeader.CkSize & 0x000000FF);
                             m_File.Write(SupportClass.ToByteArray(br), 0, 8);
-                            m_File.Close();
+                            m_File.Dispose();
                         }
                         catch
                         {
@@ -470,7 +470,7 @@ namespace MP3Sharp.IO
                 case RFM_READ:
                     try
                     {
-                        m_File.Close();
+                        m_File.Dispose();
                     }
                     catch
                     {

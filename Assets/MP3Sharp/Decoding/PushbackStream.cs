@@ -83,7 +83,7 @@ namespace MP3Sharp.Decoding
 
         public void Close()
         {
-            m_Stream.Close();
+			m_Stream.Dispose();
         }
     }
 }
