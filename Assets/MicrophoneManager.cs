@@ -15,6 +15,7 @@ public class MicrophoneManager : MonoBehaviour
 	private DictationRecognizer dictationRecognizer;
 
 	private AudioSource audioSource;
+	private bool ttsEnabled = true;
 
 	// Use this string to cache the text currently displayed in the text box.
 	private string englishS = "English: Waiting for speech";
@@ -58,23 +59,40 @@ public class MicrophoneManager : MonoBehaviour
 					if (text.EndsWith("simplified chinese") || text.EndsWith("chinese simplified"))
 					{
 						name = "chinese simplified";
-					} else if (text.EndsWith("traditional chinese") || text.EndsWith("chinese traditional"))
+					}
+					else if (text.EndsWith("traditional chinese") || text.EndsWith("chinese traditional"))
 					{
 						name = "chinese traditional";
-					} else if (text.EndsWith("marry") || text.EndsWith("mouldy") || text.EndsWith("moldy"))
+					}
+					else if (text.EndsWith("marry") || text.EndsWith("mouldy") || text.EndsWith("moldy"))
 					{
 						name = "maori";
-					} else if (text.EndsWith("finish"))
+					}
+					else if (text.EndsWith("finish"))
 					{
 						name = "finnish";
 					}
 
 					SetTargetLang(name);
-					return;
 				}
-				englishS = "english: " + text + ". ";
-				WriteOut();
-				StartCoroutine(TranslateText(text));
+				else if (text == "mute" || text == "shut up" || text == "TTS off" || text == "turn off TTS" || text == "text to speech off" || text == "turn off text to speech")
+				{
+					ttsEnabled = false;
+					englishS = "TTS off";
+					WriteOut();
+				}
+				else if (text == "speak" || text == "talk now" || text == "TTS on" || text == "turn on TTS" || text == "text to speech on" || text == "turn on text to speech")
+				{
+					ttsEnabled = true;
+					englishS = "TTS on";
+					WriteOut();
+				}
+				else
+				{
+					englishS = "english: " + text + ". ";
+					WriteOut();
+					StartCoroutine(TranslateText(text));
+				}
 			};
 
 		dictationRecognizer.DictationComplete += (completionCause) =>
@@ -135,16 +153,19 @@ public class MicrophoneManager : MonoBehaviour
 		Debug.Log("Translation result: " + result);
 		target_langS = target_langName + ": " + result;
 		WriteOut();
-		url = string.Format("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&tl={0}&q={1}", target_lang, WWW.EscapeURL(result));
-		Debug.Log(url);
-		var headers = new Hashtable();
-		headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36");
-		www = new WWW(url);
-		yield return www;
-		if (www.size > 0)
+		if (ttsEnabled)
 		{
-			var audioClip = DecodeMP3.GetAudioClipFromMP3ByteArray(www.bytes);
-			audioSource.PlayOneShot(audioClip);
+			url = string.Format("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&tl={0}&q={1}", target_lang, WWW.EscapeURL(result));
+			Debug.Log(url);
+			var headers = new Hashtable();
+			headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36");
+			www = new WWW(url);
+			yield return www;
+			if (www.size > 0)
+			{
+				var audioClip = DecodeMP3.GetAudioClipFromMP3ByteArray(www.bytes);
+				audioSource.PlayOneShot(audioClip);
+			}
 		}
 	}
 
