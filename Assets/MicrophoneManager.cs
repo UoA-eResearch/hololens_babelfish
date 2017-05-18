@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using SharpConfig;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
@@ -42,6 +44,13 @@ public class MicrophoneManager : MonoBehaviour
 		Debug.Log("start");
 		audioSource = gameObject.GetComponent<AudioSource>();
 		tts = gameObject.GetComponent<TextToSpeechManager>();
+		if (File.Exists("config.cfg"))
+		{
+			var cfg = Configuration.LoadFromFile("config.cfg");
+			var apiSettings = cfg["API"];
+			wolframAPIKey = apiSettings["WolframAPIKey"].StringValue;
+			Debug.Log("loaded settings from config.cfg");
+		}
 		LoadSupportedLanguages();
 		//SetTargetLang("chinese simplified");
 		//StartCoroutine(TranslateText("Waiting for speech"));
@@ -59,7 +68,7 @@ public class MicrophoneManager : MonoBehaviour
 			{
 				Debug.LogFormat("Dictation result: {0}", text);
 				var bits = text.Split(' ');
-				if (bits[0] == "translate" && (bits.Length == 3 || bits.Length == 4))
+				if (wolframEnabled == false && bits[0] == "translate" && (bits.Length == 3 || bits.Length == 4))
 				{
 
 					string name = bits[2];
@@ -94,7 +103,7 @@ public class MicrophoneManager : MonoBehaviour
 					englishS = "TTS on";
 					WriteOut();
 				}
-				else if (text == "answer my questions") {
+				else if (text == "answer my questions" || text == "answer my question") {
 					wolframEnabled = true;
 					englishS = "Wolfram mode on";
 					WriteOut();
@@ -104,6 +113,11 @@ public class MicrophoneManager : MonoBehaviour
 					wolframEnabled = false;
 					englishS = "TTS on";
 					WriteOut();
+				} else if (text == "help" || text == "help me" || text == "what can I say")
+				{
+					englishS = "Say \"answer my questions\" to switch to wolfram mode. Say \"translate for me\" to switch back to translation mode. Say \"translate to [language_name]\" to change the output language. Say \"turn off/on TTS\" to turn TTS off or on";
+					WriteOut();
+					tts.SpeakText(englishS);
 				}
 				else
 				{
