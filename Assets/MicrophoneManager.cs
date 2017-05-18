@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using HoloToolkit.Unity;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +18,9 @@ public class MicrophoneManager : MonoBehaviour
 
 	private AudioSource audioSource;
 	private bool ttsEnabled = true;
+	private TextToSpeechManager tts;
+	private bool wolframEnabled = false;
+	private string wolframAPIKey = "7U9RW8-ERWQ8PXR65";
 
 	// Use this string to cache the text currently displayed in the text box.
 	private string englishS = "English: Waiting for speech";
@@ -36,9 +41,11 @@ public class MicrophoneManager : MonoBehaviour
 	{
 		Debug.Log("start");
 		audioSource = gameObject.GetComponent<AudioSource>();
+		tts = gameObject.GetComponent<TextToSpeechManager>();
 		LoadSupportedLanguages();
 		//SetTargetLang("chinese simplified");
-		StartCoroutine(TranslateText("Waiting for speech"));
+		//StartCoroutine(TranslateText("Waiting for speech"));
+		//StartCoroutine(AskWolfram("what is the population of canada"));
 		dictationRecognizer = new DictationRecognizer();
 
 		dictationRecognizer.DictationHypothesis += (text) =>
@@ -87,11 +94,29 @@ public class MicrophoneManager : MonoBehaviour
 					englishS = "TTS on";
 					WriteOut();
 				}
+				else if (text == "answer my questions") {
+					wolframEnabled = true;
+					englishS = "Wolfram mode on";
+					WriteOut();
+				}
+				else if (text == "translate for me")
+				{
+					wolframEnabled = false;
+					englishS = "TTS on";
+					WriteOut();
+				}
 				else
 				{
 					englishS = "english: " + text + ". ";
 					WriteOut();
-					StartCoroutine(TranslateText(text));
+					if (wolframEnabled)
+					{
+						StartCoroutine(AskWolfram(text));
+					}
+					else
+					{
+						StartCoroutine(TranslateText(text));
+					}
 				}
 			};
 
@@ -107,6 +132,24 @@ public class MicrophoneManager : MonoBehaviour
 			};
 
 		dictationRecognizer.Start();
+	}
+
+	private IEnumerator AskWolfram(string text)
+	{
+		englishS = "Question: " + text;
+		target_langS = "Result: ";
+		WriteOut();
+		string url = string.Format("http://api.wolframalpha.com/v1/spoken?appid={0}&i={1}", wolframAPIKey, WWW.EscapeURL(text));
+		var www = new WWW(url);
+		yield return www;
+		var result = www.text;
+		Debug.Log(string.Format("Wolfram response to {0}:{1}", text, result));
+		target_langS += result;
+		WriteOut();
+		if (ttsEnabled)
+		{
+			tts.SpeakText(result);
+		}
 	}
 
 	void LoadSupportedLanguages()
