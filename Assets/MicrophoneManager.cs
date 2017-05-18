@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
@@ -17,6 +13,8 @@ public class MicrophoneManager : MonoBehaviour
 	private string target_langName = "French";
 
 	private DictationRecognizer dictationRecognizer;
+
+	private AudioSource audioSource;
 
 	// Use this string to cache the text currently displayed in the text box.
 	private string englishS = "English: Waiting for speech";
@@ -36,9 +34,10 @@ public class MicrophoneManager : MonoBehaviour
 	void Start()
 	{
 		Debug.Log("start");
+		audioSource = gameObject.GetComponent<AudioSource>();
 		LoadSupportedLanguages();
 		//SetTargetLang("chinese simplified");
-		//StartCoroutine(TranslateText("Waiting for speech"));
+		StartCoroutine(TranslateText("Waiting for speech"));
 		dictationRecognizer = new DictationRecognizer();
 
 		dictationRecognizer.DictationHypothesis += (text) =>
@@ -124,7 +123,6 @@ public class MicrophoneManager : MonoBehaviour
 
 	IEnumerator<object> TranslateText(string text)
 	{
-
 		string url = string.Format("https://translate.googleapis.com/translate_a/single?client=gtx&sl=EN&tl={0}&dt=t&q={1}", target_lang, WWW.EscapeURL(text));
 		Debug.Log(url);
 		WWW www = new WWW(url);
@@ -134,6 +132,14 @@ public class MicrophoneManager : MonoBehaviour
 		Debug.Log("Translation result: " + result);
 		target_langS = target_langName + ": " + result;
 		WriteOut();
+		url = string.Format("http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&tl={0}&q={1}", target_lang, WWW.EscapeURL(result));
+		Debug.Log(url);
+		var headers = new Hashtable();
+		headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36");
+		www = new WWW(url);
+		yield return www;
+		var audioClip = DecodeMP3.GetAudioClipFromMP3ByteArray(www.bytes);
+		audioSource.PlayOneShot(audioClip);
 	}
 
 	void OnApplicationQuit()
